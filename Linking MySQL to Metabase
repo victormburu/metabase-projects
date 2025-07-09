@@ -1,0 +1,104 @@
+# README: MySQL to Metabase Journey
+
+## Introduction
+
+This README documents the step-by-step process Victor followed to connect a MySQL database to Metabase on a Windows system. It includes challenges encountered, configuration changes made, and the final success.
+
+## Initial Setup
+
+* **Environment:**
+
+  * OS: Windows 10
+  * MySQL Server: 8.0.42
+  * Metabase: Desktop App
+  * MySQL Shell (mysqlsh) and MySQL Command Line Client
+
+* **Initial Goal:**
+  Connect MySQL database (`store_data`) to Metabase for data analysis and visualization.
+
+## Step-by-Step Timeline
+
+### 1. **Creating a New MySQL User for Metabase**
+
+```sql
+CREATE USER 'victor_user'@'localhost' IDENTIFIED BY 'yourpassword';
+GRANT ALL PRIVILEGES ON store_data.* TO 'victor_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+### 2. **Switching MySQL Auth Plugin (for compatibility)**
+
+```sql
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'yourpassword';
+FLUSH PRIVILEGES;
+```
+
+## Challenges Encountered
+
+### ❌ Challenge 1: Could Not Save `my.ini` File
+
+* **Reason:** File permission error.
+* **Fix:** Open Notepad as Administrator to modify `C:/ProgramData/MySQL/MySQL Server 8.0/my.ini`
+
+### ❌ Challenge 2: Wrong Shell Commands & Syntax Errors
+
+* Mixing MySQL SQL commands and shell commands like `mysqlsh --sql -u root -p` inside the SQL prompt.
+* **Fix:** Run such shell commands in Windows Command Prompt or Git Bash, not inside MySQL Shell SQL mode.
+
+### ❌ Challenge 3: `Access Denied` for New User
+
+* Misconfigured or incorrect password during login.
+* **Fix:** Correct password and ensure `GRANT ALL PRIVILEGES` was properly issued.
+
+### ❌ Challenge 4: Metabase Could Not Connect to MySQL
+
+* MySQLX protocol issues.
+* Port mismatch (Metabase expects default MySQL port 3306).
+* **Fixes:**
+
+  * Verified port using:
+
+    ```sql
+    SHOW GLOBAL VARIABLES LIKE 'port';
+    ```
+  * Used `mysql_native_password` plugin.
+  * Restarted MySQL server.
+
+## Breakthrough Moments ✅
+
+### 🎉 Success 1: MySQL User Connected via MySQL Shell
+
+```sh
+mysqlsh -u victor_user -p
+```
+
+* Successful authentication.
+* Switched to SQL mode using `\sql`
+
+### 🎉 Success 2: MySQL Database Added to Metabase
+
+* Filled Metabase form:
+
+  * Host: `localhost`
+  * Port: `3306`
+  * Database: `store_data`
+  * User: `victor_user`
+  * Password: \[your password]
+* Clicked **Test Connection** → Success!
+* Proceeded to **Save**
+
+## Next Steps
+
+* Configure table permissions in Metabase.
+* Start building insightful dashboards.
+* Explore SQL queries from Metabase.
+
+## Notes
+
+* Always match SQL user host (`localhost`) with connection source.
+* Use `mysql_native_password` for tools like Metabase.
+* Restart MySQL server after `my.ini` changes.
+
+---
+
+💡 *Document maintained by Victor Mburu — July 2025
